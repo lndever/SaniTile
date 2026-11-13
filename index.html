@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SaniTile | Piso Modular Drenante</title>
+  <meta name="description" content="SaniTile - Piso modular drenante que ajuda a escoar a água da chuva. Solução sustentável para calçadas, praças, escolas e áreas urbanas." />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#1B5E20',
+              'green-light': '#2E7D32',
+              'green-dark': '#0D3B12',
+              black: '#0A0A0A',
+              dark: '#121212',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -12px rgba(27, 94, 32, 0.25);
+    }
+
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #050505;
+    }
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      display: block;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        105deg,
+        rgba(0,0,0,0.78) 0%,
+        rgba(0,0,0,0.50) 42%,
+        rgba(0,0,0,0.28) 100%
+      );
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- ========== HEADER ========== -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16">
+        <a href="#inicio" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 rounded-full bg-brand-green flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight">
+            <span class="text-white">Sani</span><span class="text-brand-green-light">Tile</span>
+          </span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+          <a href="#produto" class="text-white/80 hover:text-white transition">Produto</a>
+          <a href="#como-funciona" class="text-white/80 hover:text-white transition">Como funciona</a>
+          <a href="#beneficios" class="text-white/80 hover:text-white transition">Benefícios</a>
+          <a href="#modelos" class="text-white/80 hover:text-white transition">Modelos</a>
+          <a href="#sustentabilidade" class="text-white/80 hover:text-white transition">Sustentabilidade</a>
+          <a href="#sobre" class="text-white/80 hover:text-white transition">Sobre</a>
+        </nav>
+
+        <button id="menuBtn" class="md:hidden text-white p-2" aria-label="Abrir menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="mobileMenu" class="hidden md:hidden bg-black border-t border-white/10">
+      <nav class="flex flex-col px-4 py-4 gap-3 text-sm font-medium">
+        <a href="#produto" class="text-white/80 hover:text-white py-2">Produto</a>
+        <a href="#como-funciona" class="text-white/80 hover:text-white py-2">Como funciona</a>
+        <a href="#beneficios" class="text-white/80 hover:text-white py-2">Benefícios</a>
+        <a href="#modelos" class="text-white/80 hover:text-white py-2">Modelos</a>
+        <a href="#sustentabilidade" class="text-white/80 hover:text-white py-2">Sustentabilidade</a>
+        <a href="#sobre" class="text-white/80 hover:text-white py-2">Sobre</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== HERO COM CENA 3D ========== -->
+  <section id="inicio" class="hero-section flex items-center pt-16">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28 w-full">
+      <div class="max-w-2xl">
+        <p class="text-brand-green-light font-semibold text-sm uppercase tracking-wider mb-4">
+          Solução para drenagem urbana
+        </p>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+          Onde a água passa,<br>
+          <span class="text-brand-green-light">a cidade respira.</span>
+        </h1>
+        <p class="text-lg text-white/85 mb-8 max-w-lg leading-relaxed">
+          O <strong class="text-white">SaniTile</strong> é um piso modular drenante desenvolvido para evitar o acúmulo de água em calçadas, quintais, praças, escolas e áreas urbanas.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#produto" class="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green-light text-white font-semibold px-6 py-3 rounded-lg transition shadow-lg shadow-black/30">
+            Conhecer o produto
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </a>
+          <a href="#como-funciona" class="inline-flex items-center gap-2 border border-white/40 hover:border-white hover:bg-white/10 text-white font-semibold px-6 py-3 rounded-lg transition">
+            Como funciona
+          </a>
+        </div>
+
+        <div class="mt-12 flex flex-wrap gap-6 sm:gap-10">
+          <div>
+            <div class="text-2xl font-bold text-white">30×30 cm</div>
+            <div class="text-xs text-white/60 mt-0.5">por peça</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-white">4 cm</div>
+            <div class="text-xs text-white/60 mt-0.5">de altura</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-white">100%</div>
+            <div class="text-xs text-white/60 mt-0.5">reciclável</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRODUTO ========== -->
+  <section id="produto" class="py-20 md:py-28 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-black mb-4">O que é o SaniTile?</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+          Um piso formado por peças modulares que se encaixam umas nas outras. Sua estrutura possui canais na parte inferior que ajudam a direcionar a água da chuva.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div class="w-12 h-12 rounded-xl bg-brand-green flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-black mb-3">Sistema Modular</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Peças que se encaixam lateralmente, permitindo montar áreas de diferentes tamanhos e substituir apenas as peças necessárias.
+          </p>
+        </div>
+
+        <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div class="w-12 h-12 rounded-xl bg-brand-green flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-black mb-3">Canais de Drenagem</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Canais na parte inferior das peças direcionam a água da chuva, facilitando o escoamento e reduzindo o acúmulo em superfície.
+          </p>
+        </div>
+
+        <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div class="w-12 h-12 rounded-xl bg-brand-green flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-black mb-3">Material Reciclado</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Produzido com materiais reciclados e pensado para um futuro mais verde, unindo inovação, praticidade e sustentabilidade.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== COMO FUNCIONA ========== -->
+  <section id="como-funciona" class="py-20 md:py-28 bg-black text-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Como funciona?</h2>
+        <p class="text-white/70 max-w-2xl mx-auto text-lg">
+          O SaniTile trabalha em camadas para direcionar a água da chuva de forma eficiente.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="space-y-6">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-green flex items-center justify-center font-bold text-white">1</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Piso SaniTile</h3>
+              <p class="text-white/70">A superfície modular que recebe a água e a direciona pelos canais inferiores.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-green flex items-center justify-center font-bold text-white">2</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Camada de areia</h3>
+              <p class="text-white/70">Ajuda na filtragem e estabilização do piso.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-green flex items-center justify-center font-bold text-white">3</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Brita</h3>
+              <p class="text-white/70">Direciona a água para o sistema de drenagem inferior.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-green flex items-center justify-center font-bold text-white">4</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Solo / sistema de drenagem</h3>
+              <p class="text-white/70">Permite a infiltração ou o escoamento adequado da água.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-8">
+          <h3 class="text-xl font-bold mb-4 text-brand-green-light">Enquanto o piso comum acumula água...</h3>
+          <p class="text-white/80 leading-relaxed mb-6">
+            O <strong class="text-white">SaniTile direciona</strong>. Os canais de drenagem na parte inferior das peças evitam a formação de poças e contribuem para a segurança de pedestres e a redução de alagamentos em áreas instaladas.
+          </p>
+          <div class="flex items-center gap-3 text-sm text-white/60">
+            <svg class="w-5 h-5 text-brand-green-light" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Mais segurança para pedestres
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== BENEFÍCIOS ========== -->
+  <section id="beneficios" class="py-20 md:py-28 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-black mb-4">Principais benefícios</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+          Pequenas ações fazem grandes mudanças.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-brand-green/30 transition">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-green/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-black mb-1">Evita alagamentos</h3>
+            <p class="text-gray-600 text-sm">Ajuda a direcionar a água da chuva e reduzir o acúmulo em áreas instaladas.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-brand-green/30 transition">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-green/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-black mb-1">Mais segurança</h3>
+            <p class="text-gray-600 text-sm">Reduz poças e dificulta a circulação de pedestres em dias de chuva.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-brand-green/30 transition">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-green/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-black mb-1">Sustentável</h3>
+            <p class="text-gray-600 text-sm">Produzido com materiais reciclados e 100% reciclável.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-brand-green/30 transition">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-green/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-black mb-1">Fácil manutenção</h3>
+            <p class="text-gray-600 text-sm">Permite a substituição de peças individuais quando necessário.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-brand-green/30 transition">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-green/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-black mb-1">Ampliação fácil</h3>
+            <p class="text-gray-600 text-sm">Facilita a ampliação da área por meio dos encaixes modulares.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-brand-green/30 transition">
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-green/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-black mb-1">Fácil transporte</h3>
+            <p class="text-gray-600 text-sm">Embalagem compacta e prática, ideal para obras e reformas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MODELOS E APLICAÇÕES ========== -->
+  <section id="modelos" class="py-20 md:py-28 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-black mb-4">Modelos e aplicações</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+          Cores pensadas para combinar com diferentes ambientes.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 max-w-md mx-auto mb-16">
+        <div class="bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm">
+          <div class="w-16 h-16 rounded-xl mx-auto mb-4" style="background:#4A4A4A;"></div>
+          <h3 class="font-bold text-black">Cinza</h3>
+          <p class="text-sm text-gray-500 mt-1">Urbano</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm">
+          <div class="w-16 h-16 rounded-xl mx-auto mb-4" style="background:#2E7D32;"></div>
+          <h3 class="font-bold text-black">Verde</h3>
+          <p class="text-sm text-gray-500 mt-1">Áreas externas</p>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl p-6 text-center border border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-brand-green/10 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-black">Casas e quintais</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 text-center border border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-brand-green/10 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-black">Condomínios</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 text-center border border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-brand-green/10 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-black">Escolas</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 text-center border border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-brand-green/10 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-black">Praças e áreas comunitárias</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SUSTENTABILIDADE ========== -->
+  <section id="sustentabilidade" class="py-20 md:py-28 bg-brand-green text-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-bold mb-6">Sustentabilidade no centro</h2>
+          <p class="text-white/90 text-lg leading-relaxed mb-6">
+            O SaniTile foi pensado para unir inovação, praticidade e responsabilidade ambiental. Produzido com materiais reciclados e pensado para um futuro mais verde.
+          </p>
+          <ul class="space-y-3">
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              Produzido com materiais reciclados
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              100% reciclável
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              Contribui para projetos de urbanização sustentável
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              Solução acessível e durável
+            </li>
+          </ul>
+        </div>
+        <div class="bg-black/20 rounded-2xl p-8 border border-white/20">
+          <p class="text-2xl font-bold mb-4">“Pequenas ações fazem grandes mudanças.”</p>
+          <p class="text-white/80 leading-relaxed">
+            Cada peça instalada é um passo em direção a cidades que respiram melhor e espaços mais seguros para todos.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MISSÃO, VISÃO E VALORES ========== -->
+  <section id="sobre" class="py-20 md:py-28 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-black mb-4">Missão, Visão e Valores</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div class="text-brand-green font-bold text-sm uppercase tracking-wider mb-3">Missão</div>
+          <p class="text-gray-700 leading-relaxed">
+            Desenvolver pisos modulares drenantes que contribuam para o escoamento da água da chuva, unindo inovação, praticidade e sustentabilidade.
+          </p>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div class="text-brand-green font-bold text-sm uppercase tracking-wider mb-3">Visão</div>
+          <p class="text-gray-700 leading-relaxed">
+            Tornar-se uma empresa reconhecida por oferecer soluções sustentáveis e inovadoras para melhorar os espaços urbanos.
+          </p>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div class="text-brand-green font-bold text-sm uppercase tracking-wider mb-3">Valores</div>
+          <p class="text-gray-700 leading-relaxed">
+            Sustentabilidade, inovação, qualidade, responsabilidade ambiental, segurança e compromisso com os clientes.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-black rounded-2xl p-8 md:p-10 text-white">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-3 text-brand-green-light">Segmento de atuação</h3>
+            <p class="text-white/80">
+              Construção civil, sustentabilidade e soluções para drenagem urbana.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-3 text-brand-green-light">Público-alvo</h3>
+            <p class="text-white/80">
+              Prefeituras, construtoras, condomínios, escolas, empresas, comércios e pessoas que desejam melhorar a drenagem de áreas externas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="bg-black text-white py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-brand-green flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          </div>
+          <span class="text-lg font-bold">
+            <span class="text-white">Sani</span><span class="text-brand-green-light">Tile</span>
+          </span>
+        </div>
+        <p class="text-white/60 text-sm text-center">
+          Onde a água passa, a cidade respira.
+        </p>
+        <p class="text-white/40 text-xs">
+          Projeto acadêmico — Feira ETEC Administração
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile menu -->
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+  </script>
+
+  <!-- ========== CENA 3D (Three.js) ========== -->
+  <script>
+    (function () {
+      const canvas = document.getElementById('hero-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x050505);
+      scene.fog = new THREE.FogExp2(0x050505, 0.035);
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+      camera.position.set(6.5, 3.2, 7.5);
+      camera.lookAt(0, 0.2, 0);
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: false,
+        powerPreference: 'high-performance'
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      // Luzes
+      const ambient = new THREE.AmbientLight(0x404040, 0.55);
+      scene.add(ambient);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      keyLight.position.set(5, 10, 6);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.set(1024, 1024);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x2E7D32, 0.45);
+      fillLight.position.set(-4, 4, -3);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.PointLight(0x64c8ff, 0.6, 20);
+      rimLight.position.set(0, 5, 2);
+      scene.add(rimLight);
+
+      // Grupo das camadas
+      const stack = new THREE.Group();
+      scene.add(stack);
+
+      // Dimensões das camadas
+      const layers = [
+        { name: 'solo',   y: -1.35, h: 0.9,  color: 0x3e2723, roughness: 0.55 },
+        { name: 'brita',  y: -0.55, h: 0.55, color: 0x5a5a5a, roughness: 0.75 },
+        { name: 'areia',  y: -0.05, h: 0.4,  color: 0xc9a87a, roughness: 0.65 },
+        { name: 'piso',   y: 0.35,  h: 0.35, color: 0x2a2a2a, roughness: 0.4 }
+      ];
+
+      const layerMeshes = [];
+
+      layers.forEach((L, i) => {
+        const geo = new THREE.BoxGeometry(5.2, L.h, 3.6);
+        const mat = new THREE.MeshStandardMaterial({
+          color: L.color,
+          roughness: L.roughness,
+          metalness: 0.08,
+          flatShading: false
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.y = L.y;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.scale.set(0.01, 0.01, 0.01);
+        stack.add(mesh);
+        layerMeshes.push({ mesh, targetY: L.y, delay: i * 0.35 });
+      });
+
+      // Canais no piso (linhas verdes)
+      const channelMat = new THREE.MeshStandardMaterial({
+        color: 0x2E7D32,
+        emissive: 0x1B5E20,
+        emissiveIntensity: 0.35,
+        roughness: 0.5
+      });
+      for (let i = -2; i <= 2; i++) {
+        const ch = new THREE.Mesh(
+          new THREE.BoxGeometry(0.12, 0.08, 3.4),
+          channelMat
+        );
+        ch.position.set(i * 0.85, 0.55, 0);
+        ch.scale.set(0.01, 0.01, 0.01);
+        stack.add(ch);
+        layerMeshes.push({ mesh: ch, targetY: 0.55, delay: 1.5 + Math.abs(i) * 0.08 });
+      }
+
+      // Partículas de água (chuva)
+      const dropCount = 120;
+      const dropsGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(dropCount * 3);
+      const velocities = [];
+
+      for (let i = 0; i < dropCount; i++) {
+        positions[i * 3]     = (Math.random() - 0.5) * 8;
+        positions[i * 3 + 1] = Math.random() * 6 + 1;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 6;
+        velocities.push(0.04 + Math.random() * 0.06);
+      }
+      dropsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const dropsMat = new THREE.PointsMaterial({
+        color: 0x7ec8ff,
+        size: 0.06,
+        transparent: true,
+        opacity: 0.75,
+        depthWrite: false
+      });
+      const drops = new THREE.Points(dropsGeo, dropsMat);
+      scene.add(drops);
+
+      // Solo de referência
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -1.9;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      let startTime = null;
+      const openDuration = 1.1;
+
+      function easeOutBack(t) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      }
+
+      function resize() {
+        const parent = canvas.parentElement;
+        const w = parent.clientWidth;
+        const h = parent.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function animate(t) {
+        requestAnimationFrame(animate);
+        if (!startTime) startTime = t;
+        const elapsed = (t - startTime) / 1000;
+
+        // Abertura das camadas
+        layerMeshes.forEach((item) => {
+          const localT = Math.max(0, Math.min(1, (elapsed - item.delay) / openDuration));
+          const s = easeOutBack(localT);
+          item.mesh.scale.set(s, s, s);
+        });
+
+        // Rotação suave do stack
+        stack.rotation.y = Math.sin(elapsed * 0.22) * 0.35;
+        stack.rotation.x = Math.sin(elapsed * 0.15) * 0.08;
+
+        // Câmera orbitando levemente
+        const camAngle = elapsed * 0.12;
+        camera.position.x = 6.5 * Math.cos(camAngle * 0.4) + 1.5;
+        camera.position.z = 7.5 * Math.sin(camAngle * 0.3 + 1) + 4;
+        camera.position.y = 3.0 + Math.sin(elapsed * 0.25) * 0.35;
+        camera.lookAt(0, 0.1, 0);
+
+        // Água caindo
+        const pos = drops.geometry.attributes.position.array;
+        for (let i = 0; i < dropCount; i++) {
+          pos[i * 3 + 1] -= velocities[i];
+          if (pos[i * 3 + 1] < -1.5) {
+            pos[i * 3 + 1] = 5 + Math.random() * 2;
+            pos[i * 3]     = (Math.random() - 0.5) * 8;
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 6;
+          }
+        }
+        drops.geometry.attributes.position.needsUpdate = true;
+
+        rimLight.intensity = 0.45 + Math.sin(elapsed * 2) * 0.2;
+
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>
